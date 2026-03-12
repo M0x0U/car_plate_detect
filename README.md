@@ -6,9 +6,11 @@
 
 ```shell
 pip install hyperlpr3
+```
 
 
 ## 运行
 
 ```shell
 python .\detect_plate.py --camera_id 0
+```
