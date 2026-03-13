@@ -86,30 +86,6 @@ def recognize_plate_ocr(img, ocr_engine='lpr3'):
         plate = 'unknown'
     return plate
 
-def check(plate_crop, plate_num):
-    # trick: 手动矫正一下车牌
-    # 显示图像
-    try:
-        print(f"🔍 OCR 自动识别结果：[{plate_num}]")
-        cv2.imshow("【请手动校正车牌】按任意键继续", plate_crop)
-        cv2.waitKey(0)  # 等待按任意键关闭窗口
-        cv2.destroyAllWindows()
-        user_input = input("✏️ 请输入正确车牌（直接回车使用OCR结果）：").strip()
-        # 4. 确定最终结果
-        if user_input:
-            final_plate = user_input
-        else:
-            final_plate = plate_num
-            
-        if final_plate == 'false':
-            return False, plate_num
-            
-        return True, final_plate
-    
-    except:
-        return False, plate_num
-
-
 def main():
     parser = argparse.ArgumentParser(description='车牌检测批量处理')
     parser.add_argument('--source', type=str, required=True, help='输入图片文件夹路径')
@@ -175,20 +151,10 @@ def main():
             # 对裁剪的车牌进行OCR识别
             plate_num = recognize_plate_ocr(plate_crop, ocr_engine=args.ocr)
             
-            # 根据参数决定是否手动校正
-            if args.manual:
-                plate_check, plate_num = check(plate_crop, plate_num, interactive=True)
-                if not plate_check:
-                    continue
-                manually_corrected = True
-            else:
-                plate_check = True
-                manually_corrected = False
-            
             # 记录到CSV
             with open(csv_path, 'a', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
-                writer.writerow([img_name, idx, plate_num, '是' if manually_corrected else '否'])
+                writer.writerow([img_name, idx, plate_num])
             
             # 保存裁剪的车牌 
             crop_save_path = save_crop_dir / f"{img_name}_{idx}.png"
